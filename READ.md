@@ -10,12 +10,17 @@
 
 # 명령어
 
+### Python 
+
 1. 가상환경 설치
     * python -m venv "가상환경 이름"
     * ex) python -m venv venv
+
+### pip
 1. pip upgrade
     * pip install --upgrade pip
 
+### Django
 1. django 설치
     * py -m pip install Django
 
@@ -42,3 +47,6 @@
 
 ![djangocycle](https://user-images.githubusercontent.com/26734934/138220855-bb934e58-cd82-4e3b-9839-824d93108a23.jpg)
 
+# Flow
+
+client -> domain -> basic > urls.py -> polls >urls.py -> views.py 이동
