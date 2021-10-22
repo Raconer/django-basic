@@ -1,3 +1,6 @@
+# 참고 유투브 
+https://www.youtube.com/watch?v=-Nmtakm70Ro
+
 # 프로젝트 목적
 
 1. 사람들이 설문 내용을 보고 직접 투표할 수있는 개방된 사이트
@@ -6,7 +9,7 @@
 # 기본 단어
 1. Project vs App
     * Project 는 App을 묶음이다.
-    *. 따라서 App은 기능이라고 생각 하면된다.
+    * 따라서 App은 기능이라고 생각 하면된다.
 
 # 명령어
 
@@ -21,6 +24,7 @@
     * pip install --upgrade pip
 
 ### Django
+
 1. django 설치
     * py -m pip install Django
 
@@ -33,6 +37,62 @@
 1. app 생성
     * py manage.py startapp polls
 
+1. 데이터 베이스 테이블 생성 명령어
+    * py manage.py migrate
+
+1. 명시된 models.py를 DB에 설계 하도록 명시 하는 명령어
+    * py manage.py makemigrations 'App name' 
+    * ex) py manage.py makemigrations polls -> polls에 명시된 model을 DB에 설계 명시한다.
+        * 실행시 polls\migrations\0001_initial.py 에 model이 명시 되었다고 출력이 되며 파일에 접근하면 확인할수있다.
+
+# API 명령어
+1. API Shell 접근
+    * py manage.py shell
+
+1. Import Models
+    <!--  polls의 models에 있는 Choice.class와 Question.class 를 Import한다.  -->
+    * from polls.models import Choice, Question
+
+1. Model 안 데이터 출력 (DB 테이블 출력이라고 생각 하면된다.)
+    <!-- Question table 출력 -->
+    * Question.objects.all()  
+
+1. Select Data with where
+    <!-- id 가 1인 데이터 -->
+    * Question.objects.filter(id=1)
+    <!--question_text 시작 Text 가 What 일때. --> 
+    * Q
+    <!-- 올해 데이터 출력 (Not Working)-->
+    * Question.objects.get(pub_date__year=current_year) 
+
+1. Insert Data 
+    <!-- Class 생성자 입력하듯시 사용한다. -->
+    * q = Question(question_text="What's new?", pub_date=timezone.now())
+    * q.save() 를 해야 저장 완료
+
+1. Update Data
+    * 기존 Insert된 Data 기준으로
+    * question_text update시 -> q.question_text="update Text" 작성
+    * pub_date update시 -> q.pub_date=timezone.now() 작성
+    * 마찬가지로 q.save()를 해야 DB에 저장이 된다.
+
+1. Delete Data
+    * q.delete()
+
+1. FK 셋팅된 Choice 테이블 생성
+    * Default : q = Question.objects.get(pk=1)
+    <!-- Question pk가 1인 Choice 생성 -->
+    * q.choice_set.all() 
+
+1. 같은 FK 테이블 데이터 입력
+    * q.choice_set.create(choice_text='Not much', votes=0)
+
+1. FK 관련 Choice 데이터 출력
+    *  q.choice_set.all()
+    <!-- 갯수 출력 -->
+    * q.choice_set.count() 
+
+
 # 각 폴더 기능
 * Basic은 root path이다. 
 * manage.py: Django 프로젝트와 다양한 방법으로 상호작용 하는 커맨드라인의 유틸리티 입니다. manage.py 에 대한 자세한 정보는 django-admin and manage.py 에서 확인할 수 있습니다.
@@ -43,6 +103,18 @@
     * asgi.py: An entry-point for ASGI-compatible web servers to serve your project. See ASGI를 사용하여 배포하는 방법 for more details.
     * wsgi.py: 현재 프로젝트를 서비스하기 위한 WSGI 호환 웹 서버의 진입점입니다. WSGI를 사용하여 배포하는 방법를 읽어보세요.
 
+# 기본 App
+
+기본적으로는, basic > setting.py > INSTALLED_APPS는 Django와 함께 딸려오는 다음의 앱들을 포함합니다.
+(polls App 도 사용하기 위해 setting.py에 'polls.apps.PollsConfig'을 명시한다.)
+
+1. django.contrib.admin :   관리용 사이트. 곧 사용하게 될 겁니다.
+2. django.contrib.auth  :    인증 시스템.
+3. django.contrib.contenttypes  :   컨텐츠 타입을 위한 프레임워크.
+4. django.contrib.sessions  :   세션 프레임워크.
+5. django.contrib.messages  :   메세징 프레임워크.
+6. django.contrib.staticfiles   :   정적 파일을 관리하는 프레임워크.
+
 # Django 
 
 ![djangocycle](https://user-images.githubusercontent.com/26734934/138220855-bb934e58-cd82-4e3b-9839-824d93108a23.jpg)
@@ -50,3 +122,30 @@
 # Flow
 
 client -> domain -> basic > urls.py -> polls >urls.py -> views.py 이동
+
+# DataBase
+
+basic >  settings.py 의 DATABASES 데이터 변경(Default sqlite3)
+
+* django.db.backends.sqlite3
+* django.db.backends.postgresql
+* django.db.backends.mysql
+* django.db.backends.oracle
+
+# Model 
+
+각 App별 models.py 에 생성
+
+# Admin App/관리자 페이지
+
+## 명령어
+
+    1. 관리자 계정 생성
+        * py manage.py createsuperuser
+        * username : admin, pw: 1q2w3e4r, email:admin@admin.com
+
+## 관리자 페이지 에서 App 관리 하기 
+
+    1. App 내부에 admin.py 파일 생성
+        * ex) polls > admin.py 파일 생성
+        * admin.site.register(Question) 하여 Question Model을 Admin 에 등록한다.

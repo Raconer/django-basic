@@ -1,3 +1,6 @@
 from django.contrib import admin
 
-# Register your models here.
+from .models import Question
+
+# polls의 Question Model을 등록한다.
+admin.site.register(Question)
