@@ -6,6 +6,13 @@ https://www.youtube.com/watch?v=-Nmtakm70Ro
 1. 사람들이 설문 내용을 보고 직접 투표할 수있는 개방된 사이트
 2. 관리자가 설문을 추가, 변경, 삭제할 수 있는 관리용 사이트
 
+## View 페이지 구성
+
+* 질문 《색인》 페이지 – 최근의 질문들을 표시합니다.
+* 질문 《세부》 페이지 – 질문 내용과, 투표할 수 있는 서식을 표시합니다.
+* 질문 《결과》 페이지 – 특정 질문에 대한 결과를 표시합니다
+* 투표 기능 – 특정 질문에 대해 특정 선택을 할 수 있는 투표 기능을 제공합니다.
+
 # 기본 단어
 1. Project vs App
     * Project 는 App을 묶음이다.
@@ -132,6 +139,10 @@ basic >  settings.py 의 DATABASES 데이터 변경(Default sqlite3)
 * django.db.backends.mysql
 * django.db.backends.oracle
 
+## 서버에서 DB 출력
+    * Question.objects.order_by('-pub_date')[:5]
+        * Question 테이블에서 pub_date 를 출력한다. 5개 씩
+
 # Model 
 
 각 App별 models.py 에 생성
@@ -149,3 +160,86 @@ basic >  settings.py 의 DATABASES 데이터 변경(Default sqlite3)
     1. App 내부에 admin.py 파일 생성
         * ex) polls > admin.py 파일 생성
         * admin.site.register(Question) 하여 Question Model을 Admin 에 등록한다.
+
+# Django HTML
+
+1. Text 출력
+    * ```python
+        {{ question.question_text }}
+        ```
+2. For 문 출력
+    * ```python
+        {% for choice in question.choice_set.all %}
+            <li>{{ choice.choice_text }}</li>
+        {% endfor %}
+        ```
+3. URL 
+    1. ```python
+        <li><a href="/polls/{{ question.id }}/">{{ question.question_text }}</a></li>
+        ```  
+    2.  ```python
+        <li><a href="{% url 'detail' question.id %}">{{ question.question_text }}</a></li>
+        ```  
+# VIEW
+
+HTML view는 App > templates > App > index.html 순으로 만들어 진다.
+
+## 1. HTML 페이지 이동 방법
+    
+    1. Text Return 
+
+```python 
+return HttpResponse("Hello, world. Polls")
+```
+
+    2. DB에서 Data 가져온후 TEXT로 출력
+```python       
+# 5개의 Question 데이터를 불러온다.
+latest_question_list = Question.objects.order_by('-pub_date')[:5]
+# , 로 연결된 question 데이터를 Text화 시킨다.
+output = ', '.join([q.question_text for q in latest_question_list])
+return HttpResponse(output)
+```
+
+    3. DB에서 데이터를 가져온후 HTML로 출력
+```python 
+# 5개의 Question 데이터를 불러온다.
+latest_question_list = Question.objects.order_by('-pub_date')[:5]
+# 넘길 html 위치 
+template = loader.get_template('polls/index.html')
+# 넘겨줄 데이터 
+context = {
+    'latest_question_list': latest_question_list,
+}
+return HttpResponse(template.render(context, request))
+```
+
+    4. DB에서 데이터를 가져온후 HTML로 출력 간략화 (3번을 간략화 시킨 방법이다.)
+```python 
+# 5개의 Question 데이터를 불러온다.
+latest_question_list = Question.objects.order_by('-pub_date')[:5]
+# 데이터를 Context에 넣어서 Response한다.
+context = {'latest_question_list': latest_question_list}
+# 3번과 달리 render를 사용하여 HTML을 출력한다.
+return render(request, 'polls/index.html', context)
+```
+
+## 2. 404 ERROR 일으키기
+
+    1. try except 사용
+```python 
+try:
+    question = Question.objects.get(pk=question_id)
+# 데이터가 존재 하지 않을 경우 except 실행된다.
+except Question.DoesNotExist:
+    # 404 페이지로 이동한다.
+    raise Http404("Question does not exist")
+return render(request, 'polls/detail.html', {'question': question}) 
+```
+
+    2. Short cut (방법 1을 간략화 시킨 방법)
+```python 
+#  기존 try except를 사용하지 않고 get_object_or_404를 사용하여 페이지 이동을 시도했다.
+question = get_object_or_404(Question, pk=question_id)
+return render(request, 'polls/detail.html', {'question': question})
+```
