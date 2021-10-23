@@ -326,3 +326,21 @@ HTML view는 App > templates > App > index.html 순으로 만들어 진다.
            response.content # Response 한 데이터가 출력된다. (HTML 코드가 출력 되었다.)
            response.context['latest_question_list'] # Context 데이터를 출력 할수가 있다.
            ```
+
+# Template
+
+## 위치
+
+* HTML 파일 위치
+    * app > template
+* CSS 및 static 파일
+    * polls > static > polls
+
+## HTML Load CSS 파일
+```django html
+<!-- 템플릿 태그는 정적 파일의 절대 URL을 생성합니다.  -->
+{% load static %}
+
+<link rel="stylesheet" type="text/css" href="{% static 'polls/style.css' %}">
+```
+
