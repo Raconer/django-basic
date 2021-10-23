@@ -58,6 +58,10 @@ https://docs.djangoproject.com/en/3.2/
     * ex) py manage.py makemigrations polls -> polls에 명시된 model을 DB에 설계 명시한다.
         * 실행시 polls\migrations\0001_initial.py 에 model이 명시 되었다고 출력이 되며 파일에 접근하면 확인할수있다.
 
+### Admin
+1. Django 기본 제공 Tempalte 위치 찾기
+    * py -c "import django; print(django.__path__)"
+
 # API 명령어
 1. API Shell 접근
     * py manage.py shell
@@ -344,3 +348,98 @@ HTML view는 App > templates > App > index.html 순으로 만들어 진다.
 <link rel="stylesheet" type="text/css" href="{% static 'polls/style.css' %}">
 ```
 
+# Admin Customize
+
+1. Admin Field 순서 변경
+    * ```python
+        # 재 정렬 Class
+        class QuestionAdmin(admin.ModelAdmin):
+            # 출력 순서 입력
+            fields = ['pub_date', 'question_text']
+
+        # QuestionAmdin 을 args로 입력 하여 field 순서를 변경 할수있다.
+        # polls의 Question Model을 등록한다.
+        admin.site.register(Question, QuestionAdmin)
+        admin.site.register(Choice)
+      ```
+
+2. Field Title 생성
+    * ```python
+        ## 재 정렬 Class
+        class QuestionAdmin(admin.ModelAdmin):
+            # 출력 순서 입력 및 Title 입력
+            fieldsets = [
+                (None,               {'fields': ['question_text']}),
+                ('Date information', {'fields': ['pub_date']}),
+            ]
+
+        # QuestionAmdin 을 args로 입력 하여 field 순서를 변경 할수있다.
+        # polls의 Question Model을 등록한다.
+        admin.site.register(Question, QuestionAdmin)
+        admin.site.register(Choice)
+      ```   
+    
+3. FK 하위 테이블 같이 출력
+    * ```python
+      #  StackedInline, TabularInline 으로 출력 Temlate를 변경 할수있다. 당연히 2개 외에도 있다.
+      class ChoiceInline(admin.StackedInline):
+          model = Choice
+          extra = 1 # 여분의 Form 양식
+      ## 재 정렬 Class
+      class QuestionAdmin(admin.ModelAdmin):
+          # 출력 순서 입력 및 Title 입력
+          fieldsets = [
+              (None,               {'fields': ['question_text']}),
+              ('Date information', {'fields': ['pub_date']}),
+          ]
+          # Question List Table Header 이다. 함수도 실행 가능하다
+          list_display = ('question_text', 'pub_date', 'was_published_recently')
+          inlines = [ChoiceInline]
+          # pub_Date 기준으로 Filter 생성
+          list_filter = ['pub_date']  
+          # 검색 박스 Questsion 기준으로 검색한다.
+          search_fields = ['question_text']
+      # QuestionAmdin 을 args로 입력 하여 field 순서를 변경 할수있다.
+      # polls의 Question Model을 등록한다.
+      admin.site.register(Question, QuestionAdmin)
+      ```
+      * Model 에서도 admin 관련 정보를 수정할수있다.
+        ```python
+        # 하단 was_published_recently 함수 Field admin Display  설정을 할수있다.
+        @admin.display(
+            # boolean Icon 으로 변경
+            boolean=True,
+            ordering='pub_date',
+            description='Published recently?',
+        )
+        def was_published_recently(self):
+            # 현재로 부터 하루 전을 뺀 조건의 데이터만 출력
+            now = timezone.now()
+            return now - datetime.timedelta(days=1) <= self.pub_date < now
+        ```
+
+## Django template 위치 변경
+
+1. Project > settings.py > TEMPLATES에 'DIRS': [BASE_DIR / 'templates'] 추가
+    * ```python
+      TEMPLATES = [
+          {
+              'BACKEND': 'django.template.backends.django.DjangoTemplates',
+              # Amdin template 수정 / 추가 내용
+              'DIRS': [BASE_DIR / 'templates'],
+              'APP_DIRS': True,
+              'OPTIONS': {
+                  'context_processors': [
+                      'django.template.context_processors.debug',
+                      'django.template.context_processors.request',
+                      'django.contrib.auth.context_processors.auth',
+                      'django.contrib.messages.context_processors.messages',
+                  ],
+              },
+          },
+      ]
+      ```
+
+2. Template HTML 파일 가져오기
+    1. py -c "import django; print(django.__path__)" 명령어로 Django 위치를 확인 한 후
+    2. 1번위치 + django/contrib/admin/templates 에서 필요 한 Template HTML 파일을 template 위치에 복사한다.(예제는 base_site.html을 가져온다.)

@@ -1,4 +1,5 @@
 import datetime
+from django.contrib import admin
 
 from django.db import models
 from django.utils import timezone
@@ -17,11 +18,20 @@ class Question(models.Model):
     
     def __str__(self):
         return self.question_text
-
+        
+    # 하단 was_published_recently 함수 Field admin Display  설정을 할수있다.
+    @admin.display(
+        # boolean Icon 으로 변경
+        boolean=True,
+        ordering='pub_date',
+        description='Published recently?',
+    )
     def was_published_recently(self):
         # 현재로 부터 하루 전을 뺀 조건의 데이터만 출력
         now = timezone.now()
         return now - datetime.timedelta(days=1) <= self.pub_date < now
+
+    
         
 
 # 선택 Class
