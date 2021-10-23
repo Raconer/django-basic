@@ -20,7 +20,8 @@ class Question(models.Model):
 
     def was_published_recently(self):
         # 현재로 부터 하루 전을 뺀 조건의 데이터만 출력
-        return self.pub_date >= timezone.now() - datetime.timedelta(days=1)
+        now = timezone.now()
+        return now - datetime.timedelta(days=1) <= self.pub_date < now
         
 
 # 선택 Class
@@ -35,5 +36,6 @@ class Choice(models.Model):
 
     def __str__(self):
         return self.choice_text
+        
     
         

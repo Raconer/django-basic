@@ -1,6 +1,9 @@
 # 참고 유투브 
 https://www.youtube.com/watch?v=-Nmtakm70Ro
 
+# Django Document
+https://docs.djangoproject.com/en/3.2/
+
 # 프로젝트 목적
 
 1. 사람들이 설문 내용을 보고 직접 투표할 수있는 개방된 사이트
@@ -37,6 +40,9 @@ https://www.youtube.com/watch?v=-Nmtakm70Ro
 
 1. django 버전확인
     * python -m django --version
+
+1. django 프로젝트 생성
+    * django-admin startproject mysite
 
 1. django 서버 실행
     * py manage.py runserver
@@ -98,6 +104,9 @@ https://www.youtube.com/watch?v=-Nmtakm70Ro
     *  q.choice_set.all()
     <!-- 갯수 출력 -->
     * q.choice_set.count() 
+
+1. Test 명령어
+    *  py manage.py test polls
 
 
 # 각 폴더 기능
@@ -270,3 +279,50 @@ HTML view는 App > templates > App > index.html 순으로 만들어 진다.
       question = get_object_or_404(Question, pk=question_id)
       return render(request, 'polls/detail.html', {'question': question})
         ```
+
+# Test
+
+테스트 코드를 작성하기 위해서는 App > tests.py에 테스트 코드를 작성하면된다.
+
+## 테스트 명령어 
+
+* py manage.py test polls
+
+## 테스트 방식
+
+0. 공통 테스트 환경
+    * Shell API 환경에서 테스트 한다.
+    * ```python
+        py manage.py shell
+      ```
+
+1. 뷰 테스트 
+    * 뷰 테스트는 app > tests.py 에서 테스트 코드들로 views.py를 실행시켜 테스트 코드를 실행한다.
+
+2. 클라이언트 테스트
+    * client에서 req 해서 테스트 하는 방식
+    * 테스트 순서
+        1.  ```python
+            # 테스트 환경 구축 ( Reponse와 같은 속성을 사용할수있게 된다.)
+            # Test Util 에서 Test 환경을 import 시킨다.
+            from django.test.utils import setup_test_environment
+            # Test 환경을 셋팅 시킨다. 
+            setup_test_environment()
+            ```
+        2.  ```python
+            # 테스트 클라이언트 
+            # Client Class를 Import 한다.
+            from django.test import Client
+            # 클라이언트 Class를 설정한다.
+            client = Client()
+            ```
+        3. ```python
+           # '/' Get 방식으로 Request 한다.
+           response = client.get('/') # >> Not Found: / : 찾을수 없다는 Text가 뜬다.(실제로 구현되어 있지 않음)
+           response.status_code # 404 : 상태코드 확인 가능
+           from django.urls import reverse # reserve 를 사용하여 polls >  url name 을 사용할수있다.
+           response = client.get(reverse('polls:index')) # polls > url name사용하여 호출하였다.
+           response.status_code # 200 : 성공 상태 코드가 출력되었다.
+           response.content # Response 한 데이터가 출력된다. (HTML 코드가 출력 되었다.)
+           response.context['latest_question_list'] # Context 데이터를 출력 할수가 있다.
+           ```
